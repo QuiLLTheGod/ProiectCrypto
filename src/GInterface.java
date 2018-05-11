@@ -2,6 +2,7 @@ import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import javafx.scene.control.RadioButton;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Enumeration;
@@ -9,7 +10,7 @@ import java.util.Enumeration;
 /**
  * Created by Paul on 5/11/2018.
  */
-public class GInterface {
+public class GInterface implements ActionListener {
     private JPanel panelMain;
     private JButton buttonEncrypt;
     private JTextField textFieldMes;
@@ -31,7 +32,7 @@ public class GInterface {
     private static final int CESAR_KEY = 7;
     private static int encCounter = 0;
 
-    public GInterface(){
+    public GInterface() {
         buttonGroup.add(radioButtonCesar);
         buttonGroup.add(radioButtonVingere);
         buttonGroup.add(radioButtonRSA);
@@ -40,18 +41,7 @@ public class GInterface {
         rsa = new RSA();
         textFieldEnc.setEnabled(false);
 
-        buttonEncrypt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                doAction(true, getSelectedButtonText());
-            }
-        });
-        buttonDecrypt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                doAction(false, getSelectedButtonText());
-            }
-        });
+        setListeners();
     }
     public String getSelectedButtonText() {
         for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
@@ -63,6 +53,16 @@ public class GInterface {
 
         return null;
     }
+
+    public void setListeners(){
+        buttonDecrypt.addActionListener(this);
+        buttonEncrypt.addActionListener(this);
+        radioButton3.addActionListener(this);
+        radioButtonCesar.addActionListener(this);
+        radioButtonRSA.addActionListener(this);
+        radioButtonVingere.addActionListener(this);
+    }
+
     public void updateUI(){
 
         if(!(mOldMessage.compareTo(textFieldMes.getText())== 0)){
@@ -93,6 +93,7 @@ public class GInterface {
             case "Vinegere":
                 Vigenere vigenere = new Vigenere();
                 mKey = textFieldKey.getText().toUpperCase();
+                mMessage = mMessage.toUpperCase();
                 if(encrypt)
                     mEncrypted = vigenere.encrypt(mMessage, mKey);
                 else
@@ -126,5 +127,23 @@ public class GInterface {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JButton button = (JButton) e.getSource();
+        switch (button.getText()){
+            case "Encrypt":
+                doAction(true, getSelectedButtonText());
+                break;
+            case "Decrypt":
+                doAction(false, getSelectedButtonText());
+                break;
+            case "Cesar":
+            case "Vinegere":
+            case "RSA":
+                encCounter = 0;
+                break;
+        }
     }
 }
