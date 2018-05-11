@@ -37,10 +37,17 @@ public class RSA {
         // SE CALCULEAZA M^PUBLIC mod modul
         return stringToBigInteger(message).modPow(publicKey, modul).toByteArray();
     }
+    byte[] encryptBytes(byte[] bytes) {
+        // SE CALCULEAZA M^PUBLIC mod modul
+        return new  BigInteger(bytes).modPow(publicKey, modul).toByteArray();
+    }
 
     String  decrypt(byte[] bytes) {
         // SE CALCULEAZA M^PRIVATE mod modul
         return byteToString(new BigInteger(bytes).modPow(privateKey, modul).toByteArray());
+    }
+    byte[] decryptedBytes(byte[] bytes){
+        return new BigInteger(bytes).modPow(privateKey, modul).toByteArray();
     }
     public BigInteger stringToBigInteger(String string){
         bytes = string.getBytes(StandardCharsets.UTF_8);

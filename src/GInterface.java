@@ -20,14 +20,16 @@ public class GInterface {
     private JRadioButton radioButton3;
     private JRadioButton radioButtonRSA;
     private JButton buttonDecrypt;
+    private JTextField textField1;
     private ButtonGroup buttonGroup = new ButtonGroup();
     private String mMessage= "";
     private String mEncrypted= "";
     private String mKey= "";
-    private String mDecrypted= "";
+    private String mOldMessage= "";
     private RSA rsa;
     private byte[] bytesRSA;
     private static final int CESAR_KEY = 7;
+    private static int encCounter = 0;
 
     public GInterface(){
         buttonGroup.add(radioButtonCesar);
@@ -35,7 +37,7 @@ public class GInterface {
         buttonGroup.add(radioButtonRSA);
         buttonGroup.add(radioButton3);
         radioButtonCesar.setSelected(true);
-
+        rsa = new RSA();
         textFieldEnc.setEnabled(false);
 
         buttonEncrypt.addActionListener(new ActionListener() {
@@ -61,17 +63,24 @@ public class GInterface {
 
         return null;
     }
-    public void updateUI(boolean encrypt){
-            textFieldEnc.setEnabled(true);
+    public void updateUI(){
 
-        if(!textFieldEnc.getText().isEmpty()){
-            textFieldMes.setText(textFieldEnc.getText());
+        if(!(mOldMessage.compareTo(textFieldMes.getText())== 0)){
+            mOldMessage = textFieldMes.getText();
+            encCounter = 0;
+        }
+        if(encCounter == 0){
+            mMessage = textFieldMes.getText();
+        }
+        else{
+            mMessage = mEncrypted;
         }
     }
 
     public void doAction(boolean encrypt, String buttonText){
-        updateUI(encrypt);
-        mMessage = textFieldMes.getText();
+
+
+        updateUI();
         switch (buttonText){
             case "Cesar":
                 System.out.print("Merge");
@@ -91,16 +100,24 @@ public class GInterface {
                 break;
             case "RSA":
                 if(encrypt){
-                    rsa = new RSA();
-                    bytesRSA = rsa.encrypt(mMessage);
+                    if(encCounter == 0)
+                        bytesRSA = rsa.encrypt(mMessage);
+                    else
+                        bytesRSA = rsa.encryptBytes(bytesRSA);
                     mEncrypted = RSA.byteToString(bytesRSA);
                 }
-                else
-                    mEncrypted = rsa.decrypt(bytesRSA);
+                else {
+                    bytesRSA = rsa.decryptedBytes(bytesRSA);
+                    mEncrypted = RSA.byteToString(bytesRSA);
+                }
                 break;
         }
         textFieldEnc.setText(mEncrypted);
-        mMessage = mEncrypted;
+        if(encrypt)
+            encCounter++;
+        else
+            encCounter--;
+
     }
 
     public static void main(String args[]){
