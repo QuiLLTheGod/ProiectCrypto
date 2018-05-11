@@ -21,7 +21,7 @@ public class GInterface implements ActionListener {
     private JRadioButton radioButton3;
     private JRadioButton radioButtonRSA;
     private JButton buttonDecrypt;
-    private JTextField textField1;
+    private JTextArea textAreaTrace;
     private ButtonGroup buttonGroup = new ButtonGroup();
     private String mMessage= "";
     private String mEncrypted= "";
@@ -29,6 +29,7 @@ public class GInterface implements ActionListener {
     private String mOldMessage= "";
     private RSA rsa;
     private byte[] bytesRSA;
+    private String trace = "";
     private static final int CESAR_KEY = 7;
     private static int encCounter = 0;
 
@@ -77,6 +78,7 @@ public class GInterface implements ActionListener {
         }
     }
 
+
     public void doAction(boolean encrypt, String buttonText){
 
 
@@ -85,10 +87,12 @@ public class GInterface implements ActionListener {
             case "Cesar":
                 System.out.print("Merge");
                 Cesar cesar = new Cesar();
-                if(encrypt)
+                if(encrypt){
                     mEncrypted = cesar.crypt(mMessage, CESAR_KEY);
-                else
+                }
+                else{
                     mEncrypted = cesar.decrypt(mMessage, CESAR_KEY);
+                }
                 break;
             case "Vinegere":
                 Vigenere vigenere = new Vigenere();
@@ -113,12 +117,16 @@ public class GInterface implements ActionListener {
                 }
                 break;
         }
-        textFieldEnc.setText(mEncrypted);
-        if(encrypt)
-            encCounter++;
-        else
-            encCounter--;
 
+        textFieldEnc.setText(mEncrypted);
+        if(encrypt) {
+            trace += "Encripting with " + buttonText + System.lineSeparator();
+            encCounter++;
+        }else {
+            trace += "Decripting with " + buttonText + System.lineSeparator();
+            encCounter--;
+        }
+        textAreaTrace.setText(trace);
     }
 
     public static void main(String args[]){
@@ -131,19 +139,27 @@ public class GInterface implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        JButton button = (JButton) e.getSource();
-        switch (button.getText()){
-            case "Encrypt":
-                doAction(true, getSelectedButtonText());
-                break;
-            case "Decrypt":
-                doAction(false, getSelectedButtonText());
-                break;
-            case "Cesar":
-            case "Vinegere":
-            case "RSA":
-                encCounter = 0;
-                break;
+        if(e.getSource() instanceof JButton){
+            JButton button = (JButton) e.getSource();
+            switch (button.getText()){
+                case "Encrypt":
+                    doAction(true, getSelectedButtonText());
+                    break;
+                case "Decrypt":
+                    doAction(false, getSelectedButtonText());
+                    break;
+            }
         }
+        else{
+            JRadioButton button = (JRadioButton) e.getSource();
+            switch (button.getText()){
+                case "Cesar":
+                case "Vinegere":
+                case "RSA":
+                    encCounter = 0;
+                    break;
+            }
+        }
+
     }
 }
